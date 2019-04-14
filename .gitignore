@@ -1,0 +1,10 @@
+cifar10/
+mnist/
+model_ckt/
+training_stats/
+inference_results/
+.ipynb_checkpoints/*
+*.ipynb
+venv/
+*.idea
+*.torch
