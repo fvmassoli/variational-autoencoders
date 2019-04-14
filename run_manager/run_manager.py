@@ -1,10 +1,14 @@
+import os
+
 import torch
 from tqdm import tqdm
 from torch.optim import Adam, SGD
 
+from .utils import visualize_util
+
 
 class RunManager(object):
-    def __init__(self, model, conditional, train_loader, valid_loader, optimizer_type, lr, epochs, cuda):
+    def __init__(self, model, conditional, train_loader, valid_loader, optimizer_type, lr, epochs, model_ckt_sub, cuda):
         self._model = model
         self._conditional = conditional
         self._train_loader = train_loader
@@ -13,6 +17,7 @@ class RunManager(object):
         self._lr = lr
         self._epochs = epochs
         self._cuda = cuda
+        self._model_ckt_sub = model_ckt_sub
         self._batch_size = train_loader.batch_size
         self._print_run_info()
 
@@ -57,7 +62,7 @@ class RunManager(object):
                 loss.backward()
                 optimizer.step()
 
-            torch.save(self._model.state_dict(), 'vae.torch')
+            torch.save(self._model.state_dict(), os.path.join(self._model_ckt_sub, 'vae.torch'))
 
             print("Epoch[{}/{}] Loss: {:.3f}"
                   "\t Reconstruction: {:.3f}"
@@ -66,58 +71,19 @@ class RunManager(object):
                                           bce.item() / self._batch_size,
                                           kld.item() / self._batch_size))
 
-
     def _infer(self):
-        pass
-# def check(model):
-#     model.load_state_dict(torch.load('vae.torch'))
-#     model.cuda()
-#     model.eval()
-#     samples = [torch.randn(1, 100) for i in range(2)]
-#     recons = [model.decode(sample.cuda()) for sample in samples]
-#     recon_images = [r.squeeze(0).permute(1, 2, 0).detach().cpu() for r in recons]
-#
-#     train_dataset = CIFAR10(root='./cifar10',
-#                             train=True,
-#                             transform=t.Compose([
-#                                 t.ToTensor()
-#                             ]),
-#                             download=False)
-#     data_loader = DataLoader(dataset=train_dataset,
-#                              batch_size=4,
-#                              num_workers=4,
-#                              shuffle=True,
-#                              pin_memory=torch.cuda.is_available())
-#     images, _ = iter(data_loader).next()
-#     recon_images2_, _, _ = model(images.cuda())
-#     recon_images2 = [r.squeeze(0).permute(1, 2, 0).detach().cpu() for r in recon_images2_]
-#
-#     images = images.detach().cpu().numpy()
-#     images = images.transpose(0, 2, 3, 1)
-#
-#     plt.subplot(5, 2, 1)
-#     plt.imshow(recon_images[0])
-#     plt.subplot(5, 2, 2)
-#     plt.imshow(recon_images[1])
-#
-#     plt.subplot(5, 2, 3)
-#     plt.imshow(images[0])
-#     plt.subplot(5, 2, 4)
-#     plt.imshow(recon_images2[0])
-#
-#     plt.subplot(5, 2, 5)
-#     plt.imshow(images[1])
-#     plt.subplot(5, 2, 6)
-#     plt.imshow(recon_images2[1])
-#
-#     plt.subplot(5, 2, 7)
-#     plt.imshow(images[2])
-#     plt.subplot(5, 2, 8)
-#     plt.imshow(recon_images2[2])
-#
-#     plt.subplot(5, 2, 9)
-#     plt.imshow(images[3])
-#     plt.subplot(5, 2, 10)
-#     plt.imshow(recon_images2[3])
-#
-#     plt.show()
+        self._model.load_state_dict(torch.load('vae.torch'))
+        self._model.cuda()
+        self._model.eval()
+        samples = [torch.randn(1, 100) for i in range(2)]
+        recons = [self._model.decode(sample.cuda()) for sample in samples]
+        recon_images = [r.squeeze(0).permute(1, 2, 0).detach().cpu() for r in recons]
+
+        images, _ = iter(self._train_loader).next()
+        recon_images2_, _, _ = self._model(images.cuda())
+        recon_images2 = [r.squeeze(0).permute(1, 2, 0).detach().cpu() for r in recon_images2_]
+
+        images = images.detach().cpu().numpy()
+        images = images.transpose(0, 2, 3, 1)
+
+        visualize_util(recon_images, recon_images2, images)

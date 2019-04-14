@@ -1,6 +1,4 @@
-import torch
-
-from utils import get_args
+from utils import *
 from models.model_manager import ModelManager
 from run_manager.run_manager import RunManager
 from data_manager.data_manager import DataManager
@@ -8,10 +6,10 @@ from data_manager.data_manager import DataManager
 
 def main(args):
 
-    torch.manual_seed(args.randomSeed)
     cuda = torch.cuda.is_available()
-    if cuda:
-        torch.cuda.manual_seed(args.randomSeed)
+    init_random_seeds(args.randomSeed, cuda)
+
+    train_sub, model_ckt_sub, inference_sub = create_folders()
 
     #######################################################################
     ############### Init data manager to handle data ######################
@@ -27,7 +25,9 @@ def main(args):
     ############### Init data manager to handle data ######################
     #######################################################################
     model_manager = ModelManager(conditional=args.CVAE,
-                                 num_labels=len(train_loader.dataset.classes))
+                                 num_labels=len(train_loader.dataset.classes),
+                                 load_checkpoint=args.loadCheckpoint,
+                                 checkpoint_path=args.checkpointPath)
     # Get model
     model = model_manager.get_model()
 
@@ -41,6 +41,7 @@ def main(args):
                              optimizer_type=args.optimizer,
                              lr=args.learningRate,
                              epochs=args.epochs,
+                             model_ckt_sub=model_ckt_sub,
                              cuda=cuda)
     # Run
     run_manager.run(args.training)
