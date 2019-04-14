@@ -7,4 +7,6 @@ inference_results/
 *.ipynb
 venv/
 *.idea
+.idea/
 *.torch
+__pycache__/
