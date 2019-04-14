@@ -16,7 +16,7 @@ class RunManager(object):
         self._epochs = epochs
         self._cuda = cuda
         self._logger = logger
-        self._batch_size = train_loader.batch_size
+        self._bs = train_loader.batch_size
         self._print_run_info()
 
     def _print_run_info(self):
@@ -61,8 +61,7 @@ class RunManager(object):
                 optimizer.step()
 
             self._logger.save_model(self._model.state_dict())
-            self._logger.save_stats_on_csv(self._epochs, e+1, loss.item()/self._batch_size, bce.item()/self._batch_size,
-                                           kld.item()/self._batch_size)
+            self._logger.save_stats_on_csv(self._epochs, e+1, loss.item()/self._bs, bce.item()/self._bs, kld.item()/self._bs)
 
     def _infer(self):
         self._model.load_state_dict(torch.load('vae.torch'))
