@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .utils import one_hot_encoding
+from .utils import one_hot_encoding, loss_fn
 
 
 class UnFlatten(nn.Module):
@@ -100,7 +100,8 @@ class VAE(nn.Module):
         recon_x = self._decode(z, c)
         return recon_x
 
-
+    def get_loss(self, recon_x, x, mu, logvar):
+        return loss_fn(recon_x, x, mu, logvar)
 
 
 
