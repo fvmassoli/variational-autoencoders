@@ -74,6 +74,7 @@ class VAE(nn.Module):
         z = self._reparametrize(mu, logvar)
         return z, mu, logvar
 
+    ## Q(z|x, c)
     def _encode(self, x, c):
         h = self.encoder(x)
         if self.conditional:
@@ -82,6 +83,7 @@ class VAE(nn.Module):
         z, mu, logvar = self._bottleneck(h)
         return z, mu, logvar
 
+    ## P(x|z, c)
     def _decode(self, z, c):
         if self.conditional:
             c = one_hot_encoding(c, n=self.num_labels)
