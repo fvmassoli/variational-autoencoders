@@ -15,22 +15,25 @@ class Flatten(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, hidden_unit_size=512, latent_space_dim=100, conditional=False, num_labels=0):
+    def __init__(self, hidden_unit_size, latent_space_dim, conditional, num_labels, cuda):
         super(VAE, self).__init__()
 
         if conditional:
             assert num_labels > 0
+            hidden_unit_size + num_labels
+            latent_space_dim + num_labels
 
         self.conditional = conditional
         self.num_labels = num_labels
         self.latent_space_dim = latent_space_dim
+        self._cuda = cuda
 
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
 
-        self.fc1 = nn.Linear(hidden_unit_size+num_labels, latent_space_dim)
-        self.fc2 = nn.Linear(hidden_unit_size+num_labels, latent_space_dim)
-        self.fc3 = nn.Linear(latent_space_dim+num_labels, 64)
+        self.fc1 = nn.Linear(hidden_unit_size, latent_space_dim)
+        self.fc2 = nn.Linear(hidden_unit_size, latent_space_dim)
+        self.fc3 = nn.Linear(latent_space_dim, 64)
 
     def _build_encoder(self):
         return nn.Sequential(
@@ -73,6 +76,7 @@ class VAE(nn.Module):
     def _encode(self, x, c):
         if self.conditional:
             c = one_hot_encoding(c, n=self.num_labels)
+            if self._cuda: c.cuda()
             x = torch.cat([x, c], dim=1)
         h = self.encoder(x)
         z, mu, logvar = self._bottleneck(h)
@@ -82,6 +86,7 @@ class VAE(nn.Module):
         # print("from decoder before fc and torch.cat", z.shape)
         if self.conditional:
             c = one_hot_encoding(c, n=self.num_labels)
+            if self._cuda: c.cuda()
             z = torch.cat([z, c], dim=1)
         # print("from decoder before fc and after torch.cat", z.shape)
         h = self.fc3(z)

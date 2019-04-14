@@ -1,5 +1,3 @@
-import os
-
 import torch
 from tqdm import tqdm
 from torch.optim import Adam, SGD
@@ -8,7 +6,7 @@ from .utils import visualize_util
 
 
 class RunManager(object):
-    def __init__(self, model, conditional, train_loader, valid_loader, optimizer_type, lr, epochs, model_ckt_sub, cuda):
+    def __init__(self, model, conditional, train_loader, valid_loader, optimizer_type, lr, epochs, cuda, logger):
         self._model = model
         self._conditional = conditional
         self._train_loader = train_loader
@@ -17,7 +15,7 @@ class RunManager(object):
         self._lr = lr
         self._epochs = epochs
         self._cuda = cuda
-        self._model_ckt_sub = model_ckt_sub
+        self._logger = logger
         self._batch_size = train_loader.batch_size
         self._print_run_info()
 
@@ -47,7 +45,7 @@ class RunManager(object):
         if self._cuda:
             self._model.cuda()
 
-        for e in enumerate(self._epochs, 1):
+        for e in range(self._epochs):
 
             for idx, (data, labels) in enumerate(tqdm(self._train_loader), 1):
                 if self._cuda:
@@ -62,14 +60,9 @@ class RunManager(object):
                 loss.backward()
                 optimizer.step()
 
-            torch.save(self._model.state_dict(), os.path.join(self._model_ckt_sub, 'vae.torch'))
-
-            print("Epoch[{}/{}] Loss: {:.3f}"
-                  "\t Reconstruction: {:.3f}"
-                  "\t Dkl: {:.3f}".format(e, self._epochs,
-                                          loss.item() / self._batch_size,
-                                          bce.item() / self._batch_size,
-                                          kld.item() / self._batch_size))
+            self._logger.save_model(self._model.state_dict())
+            self._logger.save_stats_on_csv(self._epochs, e+1, loss.item()/self._batch_size, bce.item()/self._batch_size,
+                                           kld.item()/self._batch_size)
 
     def _infer(self):
         self._model.load_state_dict(torch.load('vae.torch'))

@@ -1,4 +1,5 @@
 from utils import *
+from log_manager.logger import Logger
 from models.model_manager import ModelManager
 from run_manager.run_manager import RunManager
 from data_manager.data_manager import DataManager
@@ -9,7 +10,11 @@ def main(args):
     cuda = torch.cuda.is_available()
     init_random_seeds(args.randomSeed, cuda)
 
-    train_sub, model_ckt_sub, inference_sub = create_folders()
+    #######################################################################
+    ########################## Init Logger ################################
+    #######################################################################
+    logger = Logger()
+    train_sub, model_ckt_sub, inference_sub = logger.get_stats_folders()
 
     #######################################################################
     ############### Init data manager to handle data ######################
@@ -27,7 +32,8 @@ def main(args):
     model_manager = ModelManager(conditional=args.CVAE,
                                  num_labels=len(train_loader.dataset.classes),
                                  load_checkpoint=args.loadCheckpoint,
-                                 checkpoint_path=args.checkpointPath)
+                                 checkpoint_path=args.checkpointPath,
+                                 cuda=cuda)
     # Get model
     model = model_manager.get_model()
 
@@ -41,8 +47,8 @@ def main(args):
                              optimizer_type=args.optimizer,
                              lr=args.learningRate,
                              epochs=args.epochs,
-                             model_ckt_sub=model_ckt_sub,
-                             cuda=cuda)
+                             cuda=cuda,
+                             logger=logger)
     # Run
     run_manager.run(args.training)
 
