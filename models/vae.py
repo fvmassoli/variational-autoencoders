@@ -21,7 +21,8 @@ class VAE(nn.Module):
         if conditional:
             assert num_labels > 0
             hidden_unit_size = hidden_unit_size + num_labels
-            latent_space_dim = latent_space_dim + num_labels
+        else:
+            num_labels = 0
 
         self.conditional = conditional
         self.num_labels = num_labels
@@ -33,7 +34,7 @@ class VAE(nn.Module):
 
         self.fc1 = nn.Linear(hidden_unit_size, latent_space_dim)
         self.fc2 = nn.Linear(hidden_unit_size, latent_space_dim)
-        self.fc3 = nn.Linear(latent_space_dim, 64)
+        self.fc3 = nn.Linear(latent_space_dim+num_labels, 64)
 
     def _build_encoder(self):
         return nn.Sequential(
@@ -82,6 +83,9 @@ class VAE(nn.Module):
         return z, mu, logvar
 
     def _decode(self, z, c):
+        if self.conditional:
+            c = one_hot_encoding(c, n=self.num_labels)
+            z = torch.cat([z, c], dim=1)
         h = self.fc3(z)
         output = self.decoder(h)
         return output
