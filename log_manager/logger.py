@@ -6,9 +6,13 @@ import torch
 
 
 class Logger(object):
-    def __init__(self):
-        self._current_time = time.strftime("%Y_%m_%d-%H.%M.%S")
+    def __init__(self, conditional):
+        if conditional:
+            self._current_time = 'cvae_'+time.strftime("%Y_%m_%d-%H.%M.%S")
+        else:
+            self._current_time = time.strftime("%Y_%m_%d-%H.%M.%S")
         self._train_main = './training_stats'
+
         self._train_sub = os.path.join(self._train_main, self._current_time)
         self._model_ckt_main = './model_ckt'
         self._model_ckt_sub = os.path.join(self._model_ckt_main, self._current_time)

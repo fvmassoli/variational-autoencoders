@@ -20,8 +20,8 @@ class VAE(nn.Module):
 
         if conditional:
             assert num_labels > 0
-            hidden_unit_size + num_labels
-            latent_space_dim + num_labels
+            hidden_unit_size = hidden_unit_size + num_labels
+            latent_space_dim = latent_space_dim + num_labels
 
         self.conditional = conditional
         self.num_labels = num_labels
@@ -74,23 +74,15 @@ class VAE(nn.Module):
         return z, mu, logvar
 
     def _encode(self, x, c):
+        h = self.encoder(x)
         if self.conditional:
             c = one_hot_encoding(c, n=self.num_labels)
-            if self._cuda: c.cuda()
-            x = torch.cat([x, c], dim=1)
-        h = self.encoder(x)
+            h = torch.cat([h, c], dim=1)
         z, mu, logvar = self._bottleneck(h)
         return z, mu, logvar
 
     def _decode(self, z, c):
-        # print("from decoder before fc and torch.cat", z.shape)
-        if self.conditional:
-            c = one_hot_encoding(c, n=self.num_labels)
-            if self._cuda: c.cuda()
-            z = torch.cat([z, c], dim=1)
-        # print("from decoder before fc and after torch.cat", z.shape)
         h = self.fc3(z)
-        # print("from decoder after", h.shape)
         output = self.decoder(h)
         return output
 
