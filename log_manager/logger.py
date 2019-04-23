@@ -65,8 +65,8 @@ class Logger(object):
         Writes stats on the csv file
 
         """
-        print("Epoch[{}/{}] Loss: {:.3f}"
-              "\t Reconstruction: {:.3f}"
+        print("Epoch[{}/{}] Loss: {:.3f} --- "
+              "\t Reconstruction/Perceptual: {:.3f} --- "
               "\t Dkl: {:.3f}".format(epoch, epochs, loss, bce, kld))
         data = [epoch, loss, bce, kld]
         filename = open(self._file_name, 'a')

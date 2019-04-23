@@ -47,6 +47,10 @@ class RunManager(object):
 
         for e in range(self._epochs):
 
+            _l = 0
+            _bce = 0
+            _dkl = 0
+
             for idx, (data, labels) in enumerate(tqdm(train_loader), 1):
                 data = data.to(device=self._device)
                 labels = labels.to(device=self._device)
@@ -56,12 +60,18 @@ class RunManager(object):
                 loss.backward()
                 optimizer.step()
 
+                _l += loss.item()
+                _bce += bce.item()
+                _dkl += kld.item()
+
+                if (idx + 1) % int(len(train_loader) / 2) == 0:
+                    self._logger.save_stats_on_csv(epochs=self._epochs,
+                                                   epoch=e+1,
+                                                   loss=loss.item(),
+                                                   bce=bce.item(),
+                                                   kld=kld.item())
+
             self._logger.save_model(state_dict=self._model_manager.get_model().state_dict())
-            self._logger.save_stats_on_csv(epochs=self._epochs,
-                                           epoch=e+1,
-                                           loss=loss.item()/self._bs,
-                                           bce=bce.item()/self._bs,
-                                           kld=kld.item()/self._bs)
 
     def _infer(self):
         self._model_manager.get_model().load_state_dict(torch.load('vae.torch'))

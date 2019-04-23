@@ -40,5 +40,5 @@ class PerceptualModules(object):
     def get_loss(self, recon_x, x):
         l_recon = self.forward(recon_x)
         l_orig = self.forward(x)
-        loss = sum([self.perceptual_criterion(l_recon[i].data, l_orig[i].data) for i in range(len(l_recon))])
-        return loss.item()
+        loss = sum([self.perceptual_criterion(l_recon[i], l_orig[i]) for i in range(len(l_recon))])
+        return loss
