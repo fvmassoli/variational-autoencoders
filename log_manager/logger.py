@@ -60,7 +60,9 @@ class Logger(object):
         return self._file_name
 
     def save_model(self, state_dict):
-        torch.save(state_dict, os.path.join(self._model_ckt_sub, 'vae.torch'))
+        p = os.path.join(self._model_ckt_sub, 'vae.torch')
+        torch.save(state_dict, p)
+        print("Model checkpoint saved at: {}".format(p))
 
     def save_stats_on_csv(self, epochs, epoch=0, loss=0, bce=0, kld=0):
         """
