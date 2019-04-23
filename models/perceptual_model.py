@@ -33,10 +33,8 @@ class PerceptualModules(object):
             print("="*51)
 
     def forward(self, x):
-        print('before', x.shape)
         if self.dataset_type == 'mnist':
             x = x.repeat(1, 3, 1, 1)
-        print(x.shape)
         o1 = self.modules[0](x)
         o2 = self.modules[1](o1)
         o3 = self.modules[2](o2)
