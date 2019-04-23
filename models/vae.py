@@ -15,7 +15,7 @@ class Flatten(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels):
+    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels, device):
         super(VAE, self).__init__()
 
         ## Stuff for conditional VAE
@@ -26,6 +26,7 @@ class VAE(nn.Module):
         else:
             num_labels = 0
 
+        self.device = device
         self.num_labels = num_labels
         self.latent_space_dim = latent_space_dim
 
@@ -64,7 +65,7 @@ class VAE(nn.Module):
         )
 
     def _reparametrize(self, mu, logvar):
-        eps = torch.randn(*mu.size()).cuda()
+        eps = torch.randn(*mu.size(), device=self.device)
         std = logvar.mul(0.5).exp_()
         z = mu + std*eps
         return z

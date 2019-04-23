@@ -1,4 +1,3 @@
-import json
 from utils import *
 from log_manager.logger import Logger
 from models.model_manager import ModelManager
@@ -8,35 +7,31 @@ from data_manager.data_manager import DataManager
 
 def main(args):
 
-    with open('./config.json') as f:
-        d = json.load(f)
-
-    cuda = torch.cuda.is_available() and d["cuda"]
-    init_random_seeds(d["random_seed"], cuda)
+    device, cuda = init_random_seeds(args.randomSeed, args.cuda, args.verbose)
 
     #######################################################################
     ########################## Init Logger ################################
     #######################################################################
-    logger = Logger(conditional=d["cvae"],
-                    perceptual_loss=d["perceptual_loss"])
+    logger = Logger(conditional=args.cvae,
+                    perceptual_loss=args.perceptualLoss)
 
     #######################################################################
     ############### Init data manager to handle data ######################
     #######################################################################
-    data_manager = DataManager(dataset_type=d["dataset_type"],
+    data_manager = DataManager(dataset_type=args.datasetType,
                                batch_size=args.batchSize,
                                cuda=cuda,
-                               verbose=d['verbose'])
+                               verbose=args.verbose)
 
     #######################################################################
     ############### Init data manager to handle data ######################
     #######################################################################
-    model_manager = ModelManager(conditional=d["cvae"],
-                                 perceptual_loss=d["perceptual_loss"],
+    model_manager = ModelManager(conditional=args.cvae,
+                                 perceptual_loss=args.perceptualLoss,
                                  num_labels=data_manager.get_num_labels(),
                                  checkpoint_path=args.checkpointPath,
-                                 cuda=cuda,
-                                 verbose=d['verbose'])
+                                 device=device,
+                                 verbose=args.verbose)
 
     #######################################################################
     ############### Init data manager to handle data ######################
@@ -44,11 +39,11 @@ def main(args):
     run_manager = RunManager(model_manager=model_manager,
                              data_manager=data_manager,
                              logger=logger,
-                             optimizer_type=d["optimizer"],
+                             optimizer_type=args.optimizer,
                              lr=args.learningRate,
                              epochs=args.epochs,
-                             cuda=cuda,
-                             verbose=d["verbose"])
+                             device=device,
+                             verbose=args.verbose)
     # Run
     run_manager.run(args.training)
 

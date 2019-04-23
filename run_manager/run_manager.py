@@ -7,14 +7,14 @@ from run_manager.utils import visualize_util
 
 
 class RunManager(object):
-    def __init__(self, model_manager, data_manager, logger, optimizer_type, lr, epochs, cuda, verbose):
+    def __init__(self, model_manager, data_manager, logger, optimizer_type, lr, epochs, device, verbose):
         self._model_manager = model_manager
         self._data_manager = data_manager
         self._logger = logger
         self._optimizer_type = optimizer_type
         self._lr = lr
         self._epochs = epochs
-        self._cuda = cuda
+        self._device = device
         self._verbose = verbose
         self._bs = data_manager.get_batch_size()
         self._print_run_info()
@@ -48,9 +48,8 @@ class RunManager(object):
         for e in range(self._epochs):
 
             for idx, (data, labels) in enumerate(tqdm(train_loader), 1):
-                if self._cuda:
-                    data = data.cuda(non_blocking=True)
-                    labels = labels.cuda(non_blocking=True)
+                data = data.to(device=self._device)
+                labels = labels.to(device=self._device)
                 recon_images, mu, logvar = self._model_manager.forward(data, labels)
                 loss, bce, kld = self._model_manager.get_loss(recon_images, data, mu, logvar)
                 optimizer.zero_grad()
