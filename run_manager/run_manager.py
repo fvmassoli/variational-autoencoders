@@ -67,9 +67,9 @@ class RunManager(object):
                 if (idx + 1) % int(len(train_loader) / 2) == 0:
                     self._logger.save_stats_on_csv(epochs=self._epochs,
                                                    epoch=e+1,
-                                                   loss=loss.item(),
-                                                   bce=bce.item(),
-                                                   kld=kld.item())
+                                                   loss=loss.item()/idx,
+                                                   bce=bce.item()/idx,
+                                                   kld=kld.item()/idx)
 
             self._logger.save_model(state_dict=self._model_manager.get_model().state_dict())
 
