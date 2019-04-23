@@ -29,7 +29,7 @@ class ModelManager(object):
 
     def _build_perceptual_modules(self):
         perceptual_modules = PerceptualModules(device=self.device, verbose=self.verbose)
-        return perceptual_modules.get_modules()
+        return perceptual_modules
 
     def _print_model_info(self):
         if self.verbose > 0:
@@ -43,9 +43,6 @@ class ModelManager(object):
 
     def get_model_parameters(self):
         return self._vae.parameters()
-
-    def get_perceptual_modules(self):
-        return self._perceptual_modules
 
     def forward(self, x, c):
         return self._vae.forward(x, c)

@@ -8,7 +8,7 @@ class PerceptualModules(object):
         self.verbose = verbose
         self.layers = layers
         self.modules = self._init_perceptual_modules()
-        self.print_modules_info()
+        self._prin_perceptual_info()
 
     def _init_perceptual_modules(self):
         vgg16_bn = models.vgg16_bn(pretrained=True).features
@@ -20,8 +20,13 @@ class PerceptualModules(object):
             modules.append(m)
         return modules
 
-    def get_modules(self):
-        return self.modules
+    def _prin_perceptual_info(self):
+        if self.verbose > 0:
+            print("="*20, "Model info", "="*19)
+            for i in range(len(self.modules)):
+                print("\t Module: {}\n"
+                      "\t Module structure: {}".format(i, self.modules[i]))
+            print("="*51)
 
-    def print_modules_info(self):
-        pass
+    def get_loss(self, recon_x, x):
+        return 0
