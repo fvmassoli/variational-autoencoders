@@ -38,15 +38,16 @@ class RunManager(object):
     def _train(self, ):
 
         if self._optimizer_type == 'adam':
-            optimizer = Adam(self._model_manager.get_model().parameters(), lr=self._lr)
+            optimizer = Adam(self._model_manager.get_model_parameters(), lr=self._lr)
         else:
-            optimizer = SGD(self._model_manager.get_model().parameters(), lr=self._lr, momentum=0.1, weight_decay=1.e-4)
+            optimizer = SGD(self._model_manager.get_model_parameters(), lr=self._lr, momentum=0.1, weight_decay=1.e-4)
 
         self._model_manager.get_model().train()
+        train_loader, _ = self._data_manager.get_data_loaders()
 
         for e in range(self._epochs):
 
-            for idx, (data, labels) in enumerate(tqdm(self._train_loader), 1):
+            for idx, (data, labels) in enumerate(tqdm(train_loader), 1):
                 if self._cuda:
                     data = data.cuda(non_blocking=True)
                     labels = labels.cuda(non_blocking=True)

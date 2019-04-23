@@ -41,6 +41,9 @@ class ModelManager(object):
     def get_model(self):
         return self._vae
 
+    def get_model_parameters(self):
+        return self._vae.parameters()
+
     def get_perceptual_modules(self):
         return self._perceptual_modules
 
