@@ -8,3 +8,4 @@ venv/
 *.torch
 __pycache__/
 config.json
+*.pyc

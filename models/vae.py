@@ -15,7 +15,7 @@ class Flatten(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels, cuda):
+    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels):
         super(VAE, self).__init__()
 
         ## Stuff for conditional VAE

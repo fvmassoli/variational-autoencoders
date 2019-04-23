@@ -35,7 +35,7 @@ class ModelManager(object):
         if self.verbose > 0:
             print("="*20, "Model info", "="*19)
             print("\t Is model conditional VAE: {}\n"
-                  "\t Is using perceptual loss: {}\n".format(self.conditional, self.perceptual_loss))
+                  "\t Is using perceptual loss: {}".format(self.conditional, self.perceptual_loss))
             print("="*51)
 
     def get_model(self):

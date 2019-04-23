@@ -26,22 +26,23 @@ class DataManager(object):
             ])
 
     def _init_data_sets(self):
-        download = not os.path.exists(os.path.join("./data_manager/datasets", self.dataset_type))
+        dir_ = os.path.join("./data_manager/datasets", self.dataset_type)
+        download = not os.path.exists(dir_)
         if self.dataset_type == 'mnist':
-            self._train_dataset = MNIST(root='./mnist',
+            self._train_dataset = MNIST(root=dir_,
                                         train=True,
                                         download=download,
                                         transform=self._get_transforms())
-            self._valid_dataset = MNIST(root='./mnist',
+            self._valid_dataset = MNIST(root=dir_,
                                         train=False,
                                         download=download,
                                         transform=self._get_transforms(train=False))
         else:
-            self._train_dataset = CIFAR10(root='./cifar10',
+            self._train_dataset = CIFAR10(root=dir_,
                                           train=True,
                                           download=download,
                                           transform=self._get_transforms())
-            self._valid_dataset = CIFAR10(root='./cifar10',
+            self._valid_dataset = CIFAR10(root=dir_,
                                           train=False,
                                           download=download,
                                           transform=self._get_transforms(train=False))

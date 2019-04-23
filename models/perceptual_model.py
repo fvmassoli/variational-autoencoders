@@ -3,7 +3,7 @@ from torchvision import models
 
 
 class PerceptualModules(object):
-    def __init__(self, cuda, verbose, layers=[[0, 6], [7, 13], [14, 20], [20, 27], [27, 33], [34, 43]]):
+    def __init__(self, cuda, verbose, layers=[[0, 6], [6, 13], [13, 20], [20, 27], [27, 33], [33, 43]]):
         self.cuda = cuda
         self.verbose = verbose
         self.layers = layers
