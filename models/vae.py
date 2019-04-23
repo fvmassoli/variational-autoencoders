@@ -15,7 +15,7 @@ class Flatten(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels, device):
+    def __init__(self, hidden_units, latent_space_dim, num_input_channels, conditional, num_labels, device):
         super(VAE, self).__init__()
 
         ## Stuff for conditional VAE
@@ -29,6 +29,7 @@ class VAE(nn.Module):
         self.device = device
         self.num_labels = num_labels
         self.latent_space_dim = latent_space_dim
+        self.num_input_channels = num_input_channels
 
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
@@ -39,7 +40,7 @@ class VAE(nn.Module):
 
     def _build_encoder(self):
         return nn.Sequential(
-            nn.Conv2d(3, out_channels=32, kernel_size=3, stride=2),
+            nn.Conv2d(self.num_input_channels, out_channels=32, kernel_size=3, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.Conv2d(32, out_channels=64, kernel_size=3, stride=2),
@@ -60,7 +61,7 @@ class VAE(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(64, 32, kernel_size=6, stride=1),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 3, kernel_size=5, stride=1),
+            nn.ConvTranspose2d(32, self.num_input_channels, kernel_size=5, stride=1),
             nn.Sigmoid(),
         )
 
@@ -79,7 +80,7 @@ class VAE(nn.Module):
     def _encode(self, x, c):
         h = self.encoder(x)
         if self.conditional:
-            c = one_hot_encoding(c, n=self.num_labels)
+            c = one_hot_encoding(c, n=self.num_labels, device=self.device)
             h = torch.cat([h, c], dim=1)
         z, mu, logvar = self._bottleneck(h)
         return z, mu, logvar
@@ -87,7 +88,7 @@ class VAE(nn.Module):
     ## P(x|z, c)
     def _decode(self, z, c):
         if self.conditional:
-            c = one_hot_encoding(c, n=self.num_labels)
+            c = one_hot_encoding(c, n=self.num_labels, device=self.device)
             z = torch.cat([z, c], dim=1)
         h = self.fc3(z)
         output = self.decoder(h)

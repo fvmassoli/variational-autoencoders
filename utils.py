@@ -35,10 +35,10 @@ def get_args():
     parser.add_argument('-s', '--randomSeed', type=int, default=41, help='Random seed (default: 41)')
     parser.add_argument('-o', '--optimizer', choices=['adam', 'sgd'], default='adam', help='Optimizer (default: Adam)')
     parser.add_argument('-cktp', '--checkpointPath', default=None, help='Checkpoint file path')
-    parser.add_argument('-e', '--epochs', type=int, default=1, help='Number of training epochs')
-    parser.add_argument('-lr', '--learningRate', type=float, default=0.001, help='Learning rate')
-    parser.add_argument('-bs', '--batchSize', type=int, default=128, help='Batch size')
-    parser.add_argument('-v', '--verbose', type=int, choices=[0, 1], default=1, help='Batch size')
+    parser.add_argument('-e', '--epochs', type=int, default=1, help='Number of training epochs (default: 1)')
+    parser.add_argument('-lr', '--learningRate', type=float, default=0.001, help='Learning rate (default: 0.001)')
+    parser.add_argument('-bs', '--batchSize', type=int, default=128, help='Batch size (default: 128)')
+    parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2], default=1, help='Verbose level (default: 1)')
 
     return parser.parse_args()
 

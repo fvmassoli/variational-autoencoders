@@ -6,7 +6,9 @@ import torch.nn.functional as F
 
 
 class ModelManager(object):
-    def __init__(self, conditional, perceptual_loss, num_labels, checkpoint_path, device, verbose):
+    def __init__(self, conditional, perceptual_loss, num_labels, dataset_type, checkpoint_path, device, verbose):
+        self._num_input_channels = 1 if dataset_type == 'mnist' else 3
+        self.dataset_type = dataset_type
         self.conditional = conditional
         self.num_labels = num_labels
         self.checkpoint_path = checkpoint_path
@@ -20,15 +22,15 @@ class ModelManager(object):
         self._print_model_info()
 
     def _build_vae(self):
-        vae = VAE(hidden_units=512, latent_space_dim=100, conditional=self.conditional,
-                  num_labels=self.num_labels, device=self.device)
+        vae = VAE(hidden_units=512, latent_space_dim=100, num_input_channels=self._num_input_channels,
+                  conditional=self.conditional, num_labels=self.num_labels, device=self.device)
         if self.checkpoint_path is not None:
             vae.load_state_dict(torch.load(self.checkpoint_path))
         vae.to(device=self.device)
         return vae
 
     def _build_perceptual_modules(self):
-        perceptual_modules = PerceptualModules(device=self.device, verbose=self.verbose)
+        perceptual_modules = PerceptualModules(device=self.device, dataset_type=self.dataset_type, verbose=self.verbose)
         return perceptual_modules
 
     def _print_model_info(self):

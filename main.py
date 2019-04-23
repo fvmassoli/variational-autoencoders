@@ -29,6 +29,7 @@ def main(args):
     model_manager = ModelManager(conditional=args.cvae,
                                  perceptual_loss=args.perceptualLoss,
                                  num_labels=data_manager.get_num_labels(),
+                                 dataset_type=args.datasetType,
                                  checkpoint_path=args.checkpointPath,
                                  device=device,
                                  verbose=args.verbose)
