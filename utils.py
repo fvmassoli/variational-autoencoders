@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument('-cktp', '--checkpointPath', default=None, help='Checkpoint file path')
     parser.add_argument('-e', '--epochs', type=int, default=1, help='Number of training epochs (default: 1)')
     parser.add_argument('-lr', '--learningRate', type=float, default=0.001, help='Learning rate (default: 0.001)')
-    parser.add_argument('-bs', '--batchSize', type=int, default=128, help='Batch size (default: 128)')
+    parser.add_argument('-bs', '--batchSize', type=int, default=256, help='Batch size (default: 256)')
     parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2], default=1, help='Verbose level (default: 1)')
 
     return parser.parse_args()

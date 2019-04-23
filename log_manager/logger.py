@@ -7,10 +7,12 @@ import torch
 
 class Logger(object):
     def __init__(self, conditional, perceptual_loss):
-        if conditional:
+        if conditional and perceptual_loss:
+            self._current_time = 'cvae_perceptual_loss_'+time.strftime("%Y_%m_%d-%H.%M.%S")
+        elif conditional:
             self._current_time = 'cvae_'+time.strftime("%Y_%m_%d-%H.%M.%S")
         elif perceptual_loss:
-            self._current_time = 'perceptual_loss_'+time.strftime("%Y_%m_%d-%H.%M.%S")
+            self._current_time = 'perceptual_loss_' + time.strftime("%Y_%m_%d-%H.%M.%S")
         else:
             self._current_time = time.strftime("%Y_%m_%d-%H.%M.%S")
         self._train_main = './training_stats'
@@ -65,9 +67,9 @@ class Logger(object):
         Writes stats on the csv file
 
         """
-        print("Epoch[{}/{}] Loss: {:.3f} --- "
-              "\t Reconstruction/Perceptual: {:.3f} --- "
-              "\t Dkl: {:.3f}".format(epoch, epochs, loss, bce, kld))
+        print("Epoch[{}/{}]\t==>\tTotal Loss: {:.3f} --- "
+              "Reconstruction/Perceptual loss: {:.3f} --- "
+              "Dkl: {:.3f}".format(epoch, epochs, loss, bce, kld))
         data = [epoch, loss, bce, kld]
         filename = open(self._file_name, 'a')
         with filename:
