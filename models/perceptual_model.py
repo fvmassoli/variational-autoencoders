@@ -7,6 +7,7 @@ class PerceptualModules(object):
         self.device = device
         self.verbose = verbose
         self.layers = layers
+        self.perceptual_criterion = nn.MSELoss()
         self.modules = self._init_perceptual_modules()
         self._prin_perceptual_info()
 
@@ -28,5 +29,16 @@ class PerceptualModules(object):
                       "\t Module structure: {}".format(i, self.modules[i]))
             print("="*51)
 
+    def forward(self, x):
+        o1 = self.modules[0](x)
+        o2 = self.modules[1](o1)
+        o3 = self.modules[2](o2)
+        o4 = self.modules[3](o3)
+        o5 = self.modules[4](o4)
+        return o1, o2, o3, o4, o5
+
     def get_loss(self, recon_x, x):
-        return 0
+        l_recon = self.forward(recon_x)
+        l_orig = self.forward(x)
+        loss = sum([self.perceptual_criterion(l_recon[i].data, l_orig[i].data) for i in range(len(l_recon))])
+        return loss.item()
