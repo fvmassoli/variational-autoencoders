@@ -6,9 +6,11 @@ import torch
 
 
 class Logger(object):
-    def __init__(self, conditional):
+    def __init__(self, conditional, perceptual_loss):
         if conditional:
             self._current_time = 'cvae_'+time.strftime("%Y_%m_%d-%H.%M.%S")
+        elif perceptual_loss:
+            self._current_time = 'perceptual_loss_'+time.strftime("%Y_%m_%d-%H.%M.%S")
         else:
             self._current_time = time.strftime("%Y_%m_%d-%H.%M.%S")
         self._train_main = './training_stats'

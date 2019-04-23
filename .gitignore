@@ -1,12 +1,10 @@
-cifar10/
-mnist/
+data_manager/datasets
 model_ckt/
 training_stats/
 inference_results/
 .ipynb_checkpoints/*
 *.ipynb
 venv/
-*.idea
-.idea/
 *.torch
 __pycache__/
+config.json

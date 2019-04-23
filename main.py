@@ -1,3 +1,4 @@
+import json
 from utils import *
 from log_manager.logger import Logger
 from models.model_manager import ModelManager
@@ -7,47 +8,47 @@ from data_manager.data_manager import DataManager
 
 def main(args):
 
-    cuda = torch.cuda.is_available()
-    init_random_seeds(args.randomSeed, cuda)
+    with open('./config.json') as f:
+        d = json.load(f)
+
+    cuda = torch.cuda.is_available() and d["cuda"]
+    init_random_seeds(d["random_seed"], cuda)
 
     #######################################################################
     ########################## Init Logger ################################
     #######################################################################
-    logger = Logger(conditional=args.CVAE)
+    logger = Logger(conditional=d["cvae"],
+                    perceptual_loss=d["perceptual_loss"])
 
     #######################################################################
     ############### Init data manager to handle data ######################
     #######################################################################
-    data_manager = DataManager(dataset_type=args.datasetType,
-                               download=args.download,
+    data_manager = DataManager(dataset_type=d["dataset_type"],
                                batch_size=args.batchSize,
-                               cuda=cuda)
-    # Get loaders
-    train_loader, valid_loader = data_manager.get_data_loaders()
+                               cuda=cuda,
+                               verbose=d['verbose'])
 
     #######################################################################
     ############### Init data manager to handle data ######################
     #######################################################################
-    model_manager = ModelManager(conditional=args.CVAE,
-                                 num_labels=len(train_loader.dataset.classes),
-                                 load_checkpoint=args.loadCheckpoint,
+    model_manager = ModelManager(conditional=d["cvae"],
+                                 perceptual_loss=d["perceptual_loss"],
+                                 num_labels=data_manager.get_num_labels(),
                                  checkpoint_path=args.checkpointPath,
-                                 cuda=cuda)
-    # Get model
-    model = model_manager.get_model()
+                                 cuda=cuda,
+                                 verbose=d['verbose'])
 
     #######################################################################
     ############### Init data manager to handle data ######################
     #######################################################################
-    run_manager = RunManager(model=model,
-                             conditional=args.CVAE,
-                             train_loader=train_loader,
-                             valid_loader=valid_loader,
-                             optimizer_type=args.optimizer,
+    run_manager = RunManager(model_manager=model_manager,
+                             data_manager=data_manager,
+                             logger=logger,
+                             optimizer_type=d["optimizer"],
                              lr=args.learningRate,
                              epochs=args.epochs,
                              cuda=cuda,
-                             logger=logger)
+                             verbose=d["verbose"])
     # Run
     run_manager.run(args.training)
 
@@ -56,5 +57,4 @@ if __name__ == '__main__':
     args = get_args()
     main(args=args)
 
-    # TODO: content loss
     # TODO: Gaussian Mixture Model as prior

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .utils import one_hot_encoding, loss_fn
+from .utils import one_hot_encoding
 
 
 class UnFlatten(nn.Module):
@@ -15,25 +15,25 @@ class Flatten(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, hidden_unit_size, latent_space_dim, conditional, num_labels, cuda):
+    def __init__(self, hidden_units, latent_space_dim, conditional, num_labels, cuda):
         super(VAE, self).__init__()
 
+        ## Stuff for conditional VAE
+        self.conditional = conditional
         if conditional:
             assert num_labels > 0
-            hidden_unit_size = hidden_unit_size + num_labels
+            hidden_units = hidden_units + num_labels
         else:
             num_labels = 0
 
-        self.conditional = conditional
         self.num_labels = num_labels
         self.latent_space_dim = latent_space_dim
-        self._cuda = cuda
 
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
 
-        self.fc1 = nn.Linear(hidden_unit_size, latent_space_dim)
-        self.fc2 = nn.Linear(hidden_unit_size, latent_space_dim)
+        self.fc1 = nn.Linear(hidden_units, latent_space_dim)
+        self.fc2 = nn.Linear(hidden_units, latent_space_dim)
         self.fc3 = nn.Linear(latent_space_dim+num_labels, 64)
 
     def _build_encoder(self):
@@ -102,11 +102,3 @@ class VAE(nn.Module):
         z = torch.randn([n, self.latent_space_dim])
         recon_x = self._decode(z, c)
         return recon_x
-
-    def get_loss(self, recon_x, x, mu, logvar):
-        return loss_fn(recon_x, x, mu, logvar)
-
-
-
-
-
